@@ -1,0 +1,10 @@
+{
+  "name": "weather-3d",
+  "version": "1.0.0",
+  "description": "3D 天气查看网页 - 基于 Three.js 与和风天气 API",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js"
+  }
+}

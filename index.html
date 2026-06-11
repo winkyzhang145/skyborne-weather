@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="糖果仙境风格的 3D 天气可视化网页，基于 Three.js 与和风天气 API。" />
+  <meta name="theme-color" content="#FFE5EC" />
+  <meta name="color-scheme" content="light" />
+
+  <title>Skyborne · 3D 天气</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,800&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/src/styles/main.css?v=7" />
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <!-- 跳转链接：辅助技术跳过导航 -->
+  <a class="skip-link" href="#mainCard">跳到主天气信息</a>
+
+  <!-- 启动加载 -->
+  <div id="splash" class="splash" role="status" aria-live="polite">
+    <div class="splash__inner">
+      <div class="splash__ring"></div>
+      <div class="splash__ring splash__ring--outer"></div>
+      <div class="splash__text">
+        <div class="splash__brand">SKYBORNE</div>
+        <div class="splash__caption">调取大气数据…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D 画布（装饰性，标记为 aria-hidden） -->
+  <canvas id="scene" aria-hidden="true"></canvas>
+
+  <!-- 顶部 HUD -->
+  <header class="hud-top" role="banner">
+    <div class="brand">
+      <div class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="11" r="6" fill="currentColor" fill-opacity="0.2"/>
+          <path d="M12 5V3M5 11H3M21 11h-2M8 7l-1.5-1.5M16 7l1.5-1.5"/>
+          <path d="M11 17l-1 7M13 17l1 7"/>
+        </svg>
+      </div>
+      <h1 class="brand__txt">
+        <span class="brand__name">SKYBORNE</span>
+        <span class="brand__sub">奇妙天气志</span>
+      </h1>
+    </div>
+
+    <button id="searchBtn" class="search-pill" type="button" aria-label="搜索城市">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-3.5-3.5" />
+      </svg>
+      <span class="search-pill__label">搜索城市 / 地区</span>
+      <kbd>⌘&nbsp;K</kbd>
+    </button>
+
+    <div class="quick-cities" id="quickCities" role="group" aria-label="热门城市">
+      <span class="quick-cities__label">热门：</span>
+      <button class="chip" type="button" data-city="101010100" aria-pressed="false">北京</button>
+      <button class="chip" type="button" data-city="101020100" aria-pressed="false">上海</button>
+      <button class="chip" type="button" data-city="101280101" aria-pressed="false">广州</button>
+      <button class="chip" type="button" data-city="101270101" aria-pressed="false">成都</button>
+      <button class="chip" type="button" data-city="101110101" aria-pressed="false">西安</button>
+      <button class="chip" type="button" data-city="101210101" aria-pressed="false">杭州</button>
+    </div>
+
+    <div class="meta">
+      <div class="meta__row">
+        <span class="meta__dot" aria-hidden="true"></span><span id="dataSource">实时数据</span>
+      </div>
+      <time class="meta__time" id="clock" aria-label="当前时间">--:--:--</time>
+    </div>
+  </header>
+
+  <!-- 主信息卡 -->
+  <section class="card card--main" id="mainCard" aria-labelledby="placeName" tabindex="-1">
+    <div class="card__skeleton" hidden></div>
+
+    <div class="card__head">
+      <div class="card__location">
+        <h2 class="card__place" id="placeName">— —</h2>
+        <p class="card__region" id="placeRegion">正在定位…</p>
+      </div>
+      <div class="card__icon" id="weatherIcon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6">
+          <circle cx="22" cy="22" r="8" />
+          <path d="M14 40a10 10 0 0 1 10-10 12 12 0 0 1 22 4 8 8 0 0 1-2 16H18a8 8 0 0 1-4-10Z" />
+        </svg>
+      </div>
+    </div>
+
+    <div class="card__body">
+      <div class="temp" aria-label="当前温度">
+        <span class="temp__value" id="tempValue">--</span>
+        <span class="temp__unit" aria-hidden="true">°C</span>
+      </div>
+      <div class="desc">
+        <div class="desc__text" id="descText">— —</div>
+        <div class="desc__sub">
+          <span>体感 <b id="feelsLike">--</b>°</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span>高 <b id="highTemp">--</b>°</span>
+          <span class="dot" aria-hidden="true">·</span>
+          <span>低 <b id="lowTemp">--</b>°</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 右侧栏：指标 + 7天 -->
+  <aside class="right-column" aria-label="指标与每日预报">
+    <!-- 指标网格 -->
+    <section class="grid-metrics" id="metrics" aria-label="实时指标">
+      <div class="metric">
+        <div class="metric__icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M32 12 C20 30 20 44 32 52 C44 44 44 30 32 12 Z"/>
+          </svg>
+        </div>
+        <div class="metric__label">湿度</div>
+        <div class="metric__value"><span id="humidity">--</span><i aria-hidden="true">%</i></div>
+      </div>
+      <div class="metric">
+        <div class="metric__icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 24 h24 a4 4 0 1 0 -4 -4"/>
+            <path d="M10 34 h32 a4 4 0 1 1 -4 4"/>
+            <path d="M10 44 h20"/>
+          </svg>
+        </div>
+        <div class="metric__label">风</div>
+        <div class="metric__value metric__value--wind">
+          <span id="windDir">—</span>
+          <i id="windLevel">L--</i>
+        </div>
+      </div>
+      <div class="metric">
+        <div class="metric__icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="32" cy="32" r="20"/>
+            <line x1="32" y1="32" x2="32" y2="20"/>
+            <line x1="32" y1="32" x2="40" y2="36"/>
+          </svg>
+        </div>
+        <div class="metric__label">气压</div>
+        <div class="metric__value"><span id="pressure">--</span><i aria-hidden="true">hPa</i></div>
+      </div>
+      <div class="metric">
+        <div class="metric__icon" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M8 32 Q16 24 24 32 T40 32 T56 32"/>
+            <path d="M8 42 Q16 34 24 42 T40 42 T56 42"/>
+          </svg>
+        </div>
+        <div class="metric__label">能见度</div>
+        <div class="metric__value"><span id="vis">--</span><i aria-hidden="true">km</i></div>
+      </div>
+    </section>
+
+    <!-- 24 小时条 -->
+    <section class="card card--hourly" id="hourlyCard" aria-labelledby="hourlyTitle">
+      <div class="card__title">
+        <h3 class="card__title-text" id="hourlyTitle">24 小时趋势</h3>
+        <span class="card__title-meta" aria-hidden="true">滚动查看 ›</span>
+      </div>
+      <div class="hourly" id="hourlyList" role="list">
+        <div class="hourly__empty" role="status">加载中…</div>
+      </div>
+    </section>
+
+    <!-- 7 天列表 -->
+    <section class="card card--daily" id="dailyCard" aria-labelledby="dailyTitle">
+      <div class="card__title">
+        <h3 class="card__title-text" id="dailyTitle">未来 7 日</h3>
+      </div>
+      <div class="daily-wrap">
+        <div class="daily" id="dailyList" role="list">
+          <div class="daily__empty" role="status">加载中…</div>
+        </div>
+      </div>
+    </section>
+  </aside>
+
+  <!-- 底部信息条 -->
+  <footer class="hud-bottom">
+    <div>数据 · 和风天气 QWeather</div>
+    <div class="hud-bottom__divider" aria-hidden="true">·</div>
+    <div>渲染 · Three.js WebGL</div>
+    <div class="hud-bottom__divider" aria-hidden="true">·</div>
+    <div id="updateTime">同步于 — —</div>
+  </footer>
+
+  <!-- 搜索弹窗 -->
+  <div class="modal" id="searchModal" hidden>
+    <div class="modal__backdrop" data-close></div>
+    <div class="modal__panel" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
+      <div class="modal__head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+        <label for="searchInput" id="searchTitle" class="sr-only">搜索城市</label>
+        <input id="searchInput" type="text" placeholder="输入城市名，例如 上海 / Shanghai" autocomplete="off" aria-label="搜索城市" />
+        <button class="modal__close" type="button" data-close aria-label="关闭">×</button>
+      </div>
+      <div class="modal__list" id="searchResults" role="listbox" aria-label="搜索结果">
+        <div class="modal__hint">输入至少 2 个字符开始搜索</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast：异步通知 -->
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script type="module" src="/src/main.js?v=7"></script>
+</body>
+</html>

@@ -14,7 +14,7 @@
   --ink-3: #B3A6C7;
   --line:  rgba(45, 27, 61, 0.08);
   --glass: rgba(255, 255, 255, 0.55);
-  --glass-strong: rgba(255, 255, 255, 0.78);
+  --glass-strong: rgba(255, 255, 255, 0.92);
   --glass-edge: rgba(255, 143, 181, 0.30);
 
   /* 默认糖果（晴）调色板 */
@@ -637,9 +637,9 @@ kbd {
 
 .hourly__empty { color: var(--ink-2); font-size: 13px; padding: 20px 0; }
 .hour {
-  flex: 0 0 68px;
+  flex: 0 0 52px;
   display: flex; flex-direction: column; align-items: center;
-  padding: 10px 6px 8px;
+  padding: 8px 3px 6px;
   border-radius: var(--radius-md);
   background: rgba(255, 255, 255, 0.4);
   border: 2px solid transparent;

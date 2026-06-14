@@ -492,15 +492,16 @@ kbd {
   position: fixed;
   top: 110px;
   right: 36px;
-  height: calc(100vh - 240px);     /* fallback for browsers without dvh */
-  max-height: calc(100vh - 230px);
-  height: calc(100dvh - 240px);    /* dvh-aware */
-  max-height: calc(100dvh - 230px);
+  /* 显式让出 24h 卡片占的空间：视口 - top(110) - 24h卡片底(24) - 24h卡片高(17vh) - 间距(30) */
+  height: calc(100vh - 164px - 17vh);
+  max-height: calc(100vh - 164px - 17vh);
+  height: calc(100dvh - 164px - 17dvh);
+  max-height: calc(100dvh - 164px - 17dvh);
   width: 320px;
   z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   min-width: 0; /* allow children to truncate */
 }
 
@@ -585,11 +586,11 @@ kbd {
 /* ========== 24 小时条 ========== */
 .card--hourly {
   position: fixed;
-  bottom: 80px;
+  bottom: 24px;
   left: 36px;
   right: 36px;
   z-index: 5;
-  padding: 12px 20px;
+  padding: 10px 18px;
   border-color: var(--accent-2);
   background: var(--glass-strong);
   border: 2px solid var(--accent-2);
@@ -597,9 +598,9 @@ kbd {
   backdrop-filter: blur(24px) saturate(160%);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   box-shadow: var(--shadow-card);
-  max-height: 20vh;
-  max-height: 20dvh;
-  min-height: 120px;
+  max-height: 17vh;
+  max-height: 17dvh;
+  min-height: 110px;
   transition: border-color 0.6s var(--easing);
 }
 .card__title {
@@ -938,7 +939,7 @@ kbd {
 @media (max-width: 860px) {
   .hud-top { padding: 20px 20px; }
   .card--main { left: 20px; right: 20px; top: 100px; width: auto; }
-  .card--hourly { left: 20px; right: 20px; bottom: 110px; }
+  .card--hourly { left: 20px; right: 20px; bottom: 24px; }
   .hud-bottom { bottom: 14px; }
   .temp__value { font-size: 100px; }
 }

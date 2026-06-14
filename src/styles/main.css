@@ -491,12 +491,12 @@ kbd {
   position: fixed;
   top: 110px;
   right: 36px;
-  bottom: 264px;
+  bottom: 340px;
   width: 320px;
   z-index: 5;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
   min-width: 0; /* allow children to truncate */
 }
 
@@ -619,6 +619,7 @@ kbd {
   display: flex;
   gap: 10px;
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: thin;
   scrollbar-color: var(--accent-1) transparent;
   padding-bottom: 6px;
@@ -929,7 +930,7 @@ kbd {
 @media (max-width: 860px) {
   .hud-top { padding: 20px 20px; }
   .card--main { left: 20px; right: 20px; top: 100px; width: auto; }
-  .card--hourly { left: 20px; right: 20px; bottom: 86px; }
+  .card--hourly { left: 20px; right: 20px; bottom: 110px; }
   .hud-bottom { bottom: 14px; }
   .temp__value { font-size: 100px; }
 }

@@ -1,0 +1,4 @@
+﻿name = 'skyborne-weather'
+compatibility_date = '2026-06-14'
+production_branch = 'main'
+# CF Pages deploys the current directory; functions/ is auto-detected

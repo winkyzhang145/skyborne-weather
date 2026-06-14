@@ -179,55 +179,51 @@ document.addEventListener('keydown', (e) => {
 })
 
 let searchTimer = null
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
+const setHint = (msg) => {
+  results.replaceChildren(Object.assign(document.createElement('div'), {
+    className: 'modal__hint', role: 'status', textContent: msg
+  }))
+}
 input.addEventListener('input', () => {
   const q = input.value.trim()
   if (searchTimer) clearTimeout(searchTimer)
-  if (q.length < 2) {
-    results.innerHTML = '<div class="modal__hint" role="status">输入至少 2 个字符开始搜索</div>'
-    return
-  }
-  results.innerHTML = '<div class="modal__hint" role="status">搜索中…</div>'
+  if (q.length < 2) { setHint('输入至少 2 个字符开始搜索'); return }
+  setHint('搜索中…')
   searchTimer = setTimeout(async () => {
     try {
       const res = await qweather.lookup(q)
-      if (!res.location || !res.location.length) {
-        results.innerHTML = '<div class="modal__hint" role="status">未找到匹配的城市</div>'
-        return
-      }
-      results.innerHTML = res.location.map(city => `
-        <div class="result" role="option" tabindex="0" data-id="${city.id}">
+      if (!res.location || !res.location.length) { setHint('未找到匹配的城市'); return }
+      results.replaceChildren(...res.location.map(city => {
+        const region = [city.adm1, city.country].filter(Boolean).join(' · ')
+        const sub = city.adm2 && city.adm2 !== city.name ? ' · ' + city.adm2 : ''
+        const btn = document.createElement('button')
+        btn.type = 'button'
+        btn.className = 'result'
+        btn.setAttribute('role', 'option')
+        btn.dataset.id = city.id
+        btn.innerHTML = `
           <div>
-            <div class="result__name">${city.name}${city.adm2 && city.adm2 !== city.name ? ' · ' + city.adm2 : ''}</div>
-            <div class="result__region">${[city.adm1, city.country].filter(Boolean).join(' · ')}</div>
+            <div class="result__name">${esc(city.name + sub)}</div>
+            <div class="result__region">${esc(region)}</div>
           </div>
-          <div class="result__id">${city.id}</div>
-        </div>
-      `).join('')
-      results.querySelectorAll('.result').forEach(el => {
-        const activate = () => {
-          const city = {
-            id: el.dataset.id,
-            name: el.querySelector('.result__name').textContent.split(' · ')[0],
-            adm1: '',
-            adm2: '',
-            country: ''
-          }
-          closeSearch()
-          loadCity(city)
-        }
-        el.addEventListener('click', activate)
-        el.addEventListener('keydown', e => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            activate()
-          }
-        })
-      })
+          <div class="result__id">${esc(city.id)}</div>
+        `
+        btn.addEventListener('click', () => activate(city))
+        return btn
+      }))
+      const first = results.querySelector('.result')
+      if (first) first.setAttribute('aria-selected', 'true')
     } catch (err) {
-      results.innerHTML = '<div class="modal__hint" role="status">搜索失败：' + err.message + '</div>'
+      setHint('搜索失败：' + err.message)
     }
   }, 300)
 })
+
+function activate(city) {
+  loadCity({ id: city.id, name: city.name, adm1: city.adm1 || '', adm2: city.adm2 || '', country: city.country || '' })
+  closeSearch()
+}
 
 // ============== 热门城市快捷标签 ==============
 const cityNameMap = {

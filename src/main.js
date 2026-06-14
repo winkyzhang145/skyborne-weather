@@ -4,7 +4,7 @@ import { WeatherScene } from './three/scene.js?v=7'
 import { qweather } from './api/qweather.js?v=7'
 import { getState, setState, subscribe } from './state/store.js?v=7'
 import { getWeatherState } from './utils/weatherState.js?v=7'
-import { musicbox } from './audio/musicbox.js?v=1'
+import { musicbox } from './audio/musicbox.js?v=2'
 import {
   renderMainCard, renderHourly, renderDaily,
   updateClock, updateTime, setLoading, showToast

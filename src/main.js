@@ -4,6 +4,7 @@ import { WeatherScene } from './three/scene.js?v=7'
 import { qweather } from './api/qweather.js?v=7'
 import { getState, setState, subscribe } from './state/store.js?v=7'
 import { getWeatherState } from './utils/weatherState.js?v=7'
+import { musicbox } from './audio/musicbox.js?v=1'
 import {
   renderMainCard, renderHourly, renderDaily,
   updateClock, updateTime, setLoading, showToast
@@ -82,6 +83,7 @@ function updateDataSource() {
 }
 
 // ============== UI 渲染订阅 ==============
+let lastWeatherState = null
 subscribe((state) => {
   if (state.current) {
     renderMainCard(state)
@@ -90,7 +92,33 @@ subscribe((state) => {
   if (state.hourly.length) renderHourly(state)
   if (state.daily.length)  renderDaily(state)
   if (!state.loading)      setLoading(false)
+  // 天气态变化 → 切 BGM pattern
+  if (state.weatherState && state.weatherState !== lastWeatherState) {
+    lastWeatherState = state.weatherState
+    musicbox.setWeather(state.weatherState)
+  }
 })
+
+// ============== BGM 按钮 ==============
+const bgmBtn = document.getElementById('bgmBtn')
+if (bgmBtn) {
+  bgmBtn.addEventListener('click', async () => {
+    try {
+      if (musicbox.isPlaying) {
+        musicbox.pause()
+        bgmBtn.setAttribute('aria-pressed', 'false')
+        bgmBtn.classList.remove('is-playing')
+      } else {
+        await musicbox.play()
+        bgmBtn.setAttribute('aria-pressed', 'true')
+        bgmBtn.classList.add('is-playing')
+      }
+    } catch (err) {
+      console.error('BGM 播放失败', err)
+      showToast('背景音乐加载失败：' + err.message, 'error')
+    }
+  })
+}
 
 // ============== 时钟 ==============
 updateClock()

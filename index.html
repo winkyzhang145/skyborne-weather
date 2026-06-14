@@ -13,13 +13,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,800;1,9..144,300;1,9..144,400;1,9..144,600;1,9..144,800&family=Manrope:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="./src/styles/main.css?v=10" />
+  <link rel="stylesheet" href="./src/styles/main.css?v=11" />
 
   <script type="importmap">
   {
     "imports": {
       "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+      "tone": "https://unpkg.com/tone@14.7.77/build/Tone.js"
     }
   }
   </script>
@@ -79,6 +80,19 @@
     </div>
 
     <div class="meta">
+      <button id="bgmBtn" class="bgm-btn" type="button" aria-pressed="false" aria-label="播放或暂停背景音乐" title="背景音乐 · 八音盒">
+        <span class="bgm-btn__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13"/>
+            <circle cx="6" cy="18" r="3"/>
+            <circle cx="18" cy="16" r="3"/>
+          </svg>
+        </span>
+        <span class="bgm-btn__bars" aria-hidden="true">
+          <i></i><i></i><i></i><i></i>
+        </span>
+        <span class="bgm-btn__label">BGM</span>
+      </button>
       <div class="meta__row">
         <span class="meta__dot" aria-hidden="true"></span><span id="dataSource">实时数据</span>
       </div>
@@ -226,6 +240,6 @@
   <!-- Toast：异步通知 -->
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
-  <script type="module" src="./src/main.js?v=10"></script>
+  <script type="module" src="./src/main.js?v=11"></script>
 </body>
 </html>

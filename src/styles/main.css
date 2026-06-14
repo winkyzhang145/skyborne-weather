@@ -222,14 +222,15 @@ kbd {
 }
 .brand__sub {
   font-family: 'Caveat', cursive;
-  font-size: 16px;
+  font-size: 18px;
   color: var(--ink-2);
   margin-top: 0;
-  line-height: 1;
+  line-height: 1.05;
   display: block;
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+  max-width: 28ch;
 }
-.brand__sub::before { content: '🍬 '; }
-.brand__sub::after { content: ' · 糖果天气'; }
 
 .search-pill {
   display: inline-flex; align-items: center; gap: 12px;

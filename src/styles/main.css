@@ -931,32 +931,20 @@ kbd {
   .right-column { width: 290px; }
   .card--main { width: 320px; }
 }
+@media (max-width: 1200px) {
+  /* meta 优先收缩：隐藏演示数据 + 缩小搜索栏 kbd */
+  .hud-top { grid-template-columns: auto 1fr auto; padding: 24px 24px; }
+  .search-pill kbd { display: none; }
+  .search-pill__label { font-size: 12px; }
+  .meta__time { font-size: 18px; }
+}
 @media (max-width: 1100px) {
   .right-column { display: none; }
   .card--main { width: 340px; }
   .card--hourly { right: 36px; }
 }
-@media (max-width: 860px) {
-  .hud-top { padding: 20px 20px; }
-  .card--main { left: 20px; right: 20px; top: 100px; width: auto; }
-  .card--hourly { left: 20px; right: 20px; bottom: 24px; }
-  .hud-bottom { bottom: 14px; }
-  .temp__value { font-size: 100px; }
-}
-@media (max-width: 720px) {
-  .hud-top { padding: 18px 14px; }
-  .card--main { padding: 22px 22px 20px; }
-  .card--main .card__place { font-size: 22px; }
-  .temp__value { font-size: 88px; }
-  .desc__text { font-size: 22px; }
-}
-@media (max-width: 540px) {
-  .brand__txt { display: none; }
-  .meta__row { display: none; }
-  .search-pill__label { display: none; }
-  .search-pill kbd { display: none; }
-  .temp__value { font-size: 80px; }
-}
+
+/* 仅桌面端观看，已移除 860/720/540 手机/平板断点 */
 
 /* ========== 减少运动：全量禁用动画 ========== */
 @media (prefers-reduced-motion: reduce) {
